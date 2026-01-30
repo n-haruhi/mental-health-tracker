@@ -5,7 +5,10 @@ use App\Http\Controllers\RecordController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    if (auth()->check()) {
+        return redirect('/records');
+    }
+    return redirect('/login');
 });
 
 Route::get('/dashboard', function () {
