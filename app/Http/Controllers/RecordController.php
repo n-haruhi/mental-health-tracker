@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Record;
 use Illuminate\Http\Request;
 
 class RecordController extends Controller
@@ -11,7 +12,11 @@ class RecordController extends Controller
      */
     public function index()
     {
-        //
+        $records = Record::where('user_id', auth()->id())
+            ->orderBy('date', 'desc')
+            ->get();
+
+        return view('records.index', compact('records'));
     }
 
     /**
@@ -19,7 +24,7 @@ class RecordController extends Controller
      */
     public function create()
     {
-        //
+        return view('records.create');
     }
 
     /**
@@ -27,38 +32,71 @@ class RecordController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'date' => 'required|date',
+            'mood_score' => 'nullable|integer|min:1|max:10',
+            'sleep_hours' => 'nullable|numeric|min:0|max:24',
+            'note' => 'nullable|string',
+            'took_medication' => 'boolean',
+        ]);
+
+        Record::create([
+            'user_id' => auth()->id(),
+            ...$validated,
+        ]);
+
+        return redirect()->route('records.index')
+            ->with('success', '記録を保存しました');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Record $record)
     {
-        //
+        $this->authorize('view', $record);
+        return view('records.show', compact('record'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Record $record)
     {
-        //
+        $this->authorize('update', $record);
+        return view('records.edit', compact('record'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Record $record)
     {
-        //
+        $this->authorize('update', $record);
+
+        $validated = $request->validate([
+            'date' => 'required|date',
+            'mood_score' => 'nullable|integer|min:1|max:10',
+            'sleep_hours' => 'nullable|numeric|min:0|max:24',
+            'note' => 'nullable|string',
+            'took_medication' => 'boolean',
+        ]);
+
+        $record->update($validated);
+
+        return redirect()->route('records.index')
+            ->with('success', '記録を更新しました');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Record $record)
     {
-        //
+        $this->authorize('delete', $record);
+        $record->delete();
+
+        return redirect()->route('records.index')
+            ->with('success', '記録を削除しました');
     }
 }
