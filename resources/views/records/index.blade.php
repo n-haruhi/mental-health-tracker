@@ -72,4 +72,78 @@
             </div>
         </div>
     </div>
+    
+    @if ($records->count() > 0)
+        <div class="py-6">
+            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                    <div class="p-6">
+                        <h3 class="text-lg font-medium mb-4">過去30日間の推移</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <canvas id="moodChart"></canvas>
+                            </div>
+                            <div>
+                                <canvas id="sleepChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script type="module">
+            const chartData = @json($chartData);
+            const labels = chartData.map(d => d.date);
+            const moodScores = chartData.map(d => d.mood_score);
+            const sleepHours = chartData.map(d => d.sleep_hours);
+
+            // 気分スコアグラフ
+            new window.Chart(document.getElementById('moodChart'), {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '気分スコア',
+                        data: moodScores,
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 10
+                        }
+                    }
+                }
+            });
+
+            // 睡眠時間グラフ
+            new window.Chart(document.getElementById('sleepChart'), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '睡眠時間（時間）',
+                        data: sleepHours,
+                        backgroundColor: 'rgba(16, 185, 129, 0.5)',
+                        borderColor: 'rgb(16, 185, 129)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        </script>
+    @endif
 </x-app-layout>

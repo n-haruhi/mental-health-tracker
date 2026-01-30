@@ -16,7 +16,20 @@ class RecordController extends Controller
             ->orderBy('date', 'desc')
             ->get();
 
-        return view('records.index', compact('records'));
+        // グラフ用データ（過去30日分）
+        $chartData = Record::where('user_id', auth()->id())
+            ->where('date', '>=', now()->subDays(30))
+            ->orderBy('date', 'asc')
+            ->get()
+            ->map(function ($record) {
+                return [
+                    'date' => $record->date->format('Y-m-d'),
+                    'mood_score' => $record->mood_score,
+                    'sleep_hours' => $record->sleep_hours,
+                ];
+            });
+
+        return view('records.index', compact('records', 'chartData'));
     }
 
     /**
