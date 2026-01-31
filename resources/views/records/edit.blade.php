@@ -68,8 +68,9 @@
                             <label for="note" class="block text-sm font-medium text-gray-700 mb-2">
                                 メモ
                             </label>
-                            <textarea name="note" id="note" rows="4"
-                                      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">{{ old('note', $record->note) }}</textarea>
+                            <textarea name="note" id="note" rows="6"
+                                    placeholder="今日の出来事、気持ち、服薬の記録など、自由に書いてみましょう"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">{{ old('note', $record->note ?? '') }}</textarea>
                             @error('note')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                             @enderror

@@ -18,6 +18,9 @@
                     <x-nav-link :href="route('records.index')" :active="request()->routeIs('records.*')">
                         {{ __('記録') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('thoughts.index')" :active="request()->routeIs('thoughts.*')">
+                        {{ __('心の整理') }}
+                    </x-nav-link>
                 </div>
             </div>
 
@@ -85,6 +88,9 @@
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('records.index')" :active="request()->routeIs('records.*')">
                 {{ __('記録') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('thoughts.index')" :active="request()->routeIs('thoughts.*')">
+                {{ __('心の整理') }}
             </x-responsive-nav-link>
         </div>
 
