@@ -18,7 +18,7 @@
                         </div>
                         <a href="{{ route('records.create') }}" 
                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                             </svg>
                             新規記録
@@ -34,7 +34,7 @@
                     @if ($records->count() > 0)
                         <div class="space-y-4">
                             @foreach ($records as $record)
-                                <div class="border rounded-lg p-4 hover:bg-gray-50">
+                                <div class="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer relative" onclick="window.location='{{ route('records.show', $record) }}'">
                                     <div class="flex justify-between items-start">
                                         <div class="flex-1">
                                             <p class="text-sm text-gray-500 mb-2">{{ $record->date->format('Y年m月d日') }}</p>
@@ -56,17 +56,17 @@
                                                 <p class="text-sm text-gray-700 mt-2">{{ Str::limit($record->note, 100) }}</p>
                                             @endif
                                         </div>
-                                        <div class="flex space-x-2 ml-4 items-center">
+                                        <div class="flex space-x-2 ml-4 items-center relative z-10" onclick="event.stopPropagation()">
                                             <a href="{{ route('records.edit', $record) }}" 
-                                               class="text-blue-600 hover:text-blue-900 text-sm flex items-center">
+                                            class="text-blue-600 hover:text-blue-900 text-sm flex items-center">
                                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
                                                 </svg>
                                                 編集
                                             </a>
                                             <form action="{{ route('records.destroy', $record) }}" method="POST" 
-                                                  class="inline"
-                                                  onsubmit="return confirm('本当に削除しますか？');">
+                                                class="inline"
+                                                onsubmit="return confirm('本当に削除しますか？');">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="text-red-600 hover:text-red-900 text-sm flex items-center">
