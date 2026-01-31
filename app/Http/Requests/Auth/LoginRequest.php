@@ -12,7 +12,7 @@ use Illuminate\Validation\ValidationException;
 class LoginRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * ユーザーがこのリクエストを実行する権限があるか判定する
      */
     public function authorize(): bool
     {
@@ -20,7 +20,7 @@ class LoginRequest extends FormRequest
     }
 
     /**
-     * Get the validation rules that apply to the request.
+     * リクエストに適用するバリデーションルールを取得する
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
@@ -33,7 +33,7 @@ class LoginRequest extends FormRequest
     }
 
     /**
-     * Attempt to authenticate the request's credentials.
+     * リクエストの認証情報で認証を試みる
      *
      * @throws \Illuminate\Validation\ValidationException
      */
@@ -53,7 +53,7 @@ class LoginRequest extends FormRequest
     }
 
     /**
-     * Ensure the login request is not rate limited.
+     * ログインリクエストがレート制限されていないことを確認する
      *
      * @throws \Illuminate\Validation\ValidationException
      */
@@ -76,7 +76,7 @@ class LoginRequest extends FormRequest
     }
 
     /**
-     * Get the rate limiting throttle key for the request.
+     * リクエストのレート制限スロットルキーを取得する
      */
     public function throttleKey(): string
     {

@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 class RecordController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * リソースの一覧を表示する
      */
     public function index()
     {
@@ -33,7 +33,7 @@ class RecordController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
+     * 新規リソース作成フォームを表示する
      */
     public function create()
     {
@@ -41,7 +41,7 @@ class RecordController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * 新規作成されたリソースをストレージに保存する
      */
     public function store(Request $request)
     {
@@ -63,7 +63,7 @@ class RecordController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * 指定されたリソースを表示する
      */
     public function show(Record $record)
     {
@@ -72,7 +72,7 @@ class RecordController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * 指定されたリソースの編集フォームを表示する
      */
     public function edit(Record $record)
     {
@@ -81,7 +81,7 @@ class RecordController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * 指定されたリソースをストレージ内で更新する
      */
     public function update(Request $request, Record $record)
     {
@@ -102,7 +102,7 @@ class RecordController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * 指定されたリソースをストレージから削除する
      */
     public function destroy(Record $record)
     {

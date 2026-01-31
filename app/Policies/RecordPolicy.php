@@ -8,7 +8,7 @@ use App\Models\User;
 class RecordPolicy
 {
     /**
-     * Determine whether the user can view the model.
+     * ユーザーがモデルを閲覧できるか判定する
      */
     public function view(User $user, Record $record): bool
     {
@@ -16,7 +16,7 @@ class RecordPolicy
     }
 
     /**
-     * Determine whether the user can update the model.
+     * ユーザーがモデルを更新できるか判定する
      */
     public function update(User $user, Record $record): bool
     {
@@ -24,7 +24,7 @@ class RecordPolicy
     }
 
     /**
-     * Determine whether the user can delete the model.
+     * ユーザーがモデルを削除できるか判定する
      */
     public function delete(User $user, Record $record): bool
     {
