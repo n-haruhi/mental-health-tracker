@@ -12,7 +12,39 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    $user = auth()->user();
+    
+    // 統計データ
+    $totalRecords = \App\Models\Record::where('user_id', $user->id)->count();
+    
+    $weekStart = now()->startOfWeek();
+    $weekRecords = \App\Models\Record::where('user_id', $user->id)
+        ->where('date', '>=', $weekStart)
+        ->get();
+    
+    $avgMood = $weekRecords->avg('mood_score');
+    $avgSleep = $weekRecords->avg('sleep_hours');
+    $medicationRate = $weekRecords->where('took_medication', true)->count() / max($weekRecords->count(), 1) * 100;
+    
+    // 過去7日間のグラフデータ
+    $chartData = \App\Models\Record::where('user_id', $user->id)
+        ->where('date', '>=', now()->subDays(7))
+        ->orderBy('date', 'asc')
+        ->get()
+        ->map(function ($record) {
+            return [
+                'date' => $record->date->format('m/d'),
+                'mood_score' => $record->mood_score,
+            ];
+        });
+    
+    // 最新3件
+    $recentRecords = \App\Models\Record::where('user_id', $user->id)
+        ->orderBy('date', 'desc')
+        ->take(3)
+        ->get();
+    
+    return view('dashboard', compact('totalRecords', 'avgMood', 'avgSleep', 'medicationRate', 'chartData', 'recentRecords'));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
