@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Record;
 use Illuminate\Http\Request;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class RecordController extends Controller
 {
+    use AuthorizesRequests;
+
     /**
      * リソースの一覧を表示する
      */
