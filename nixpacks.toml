@@ -1,5 +1,5 @@
-[phases.setup]
-nixPkgs = ["nodejs", "npm", "php83"]
+[variables]
+NIXPACKS_PHP_VERSION = "8.3"
 
 [phases.install]
 cmds = ["composer install --no-dev --optimize-autoloader", "npm ci"]
