@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Medication;
 use Illuminate\Http\Request;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class MedicationController extends Controller
 {
+    use AuthorizesRequests;
+
     public function index()
     {
         $medications = auth()->user()->medications()->orderBy('created_at', 'desc')->get();
