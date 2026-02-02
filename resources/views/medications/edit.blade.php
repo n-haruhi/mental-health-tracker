@@ -67,12 +67,12 @@
                         </div>
 
                         <div class="flex items-center justify-end mt-4 gap-4">
-                            <a href="{{ route('medications.index') }}" class="text-gray-600 hover:text-gray-800">
-                                キャンセル
-                            </a>
                             <x-primary-button>
                                 {{ __('更新') }}
                             </x-primary-button>
+                            <a href="{{ route('medications.index') }}" class="text-gray-600 hover:text-gray-800">
+                                キャンセル
+                            </a>
                         </div>
                     </form>
                 </div>

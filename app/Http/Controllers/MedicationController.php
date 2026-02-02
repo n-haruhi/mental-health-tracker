@@ -52,8 +52,11 @@ class MedicationController extends Controller
             'timing' => 'required|array|min:1',
             'timing.*' => 'in:morning,afternoon,evening,night,bedtime',
             'notes' => 'nullable|string',
-            'is_active' => 'boolean',
+            'is_active' => 'nullable|boolean',
         ]);
+
+        // is_activeが送信されない場合はfalseとして扱う
+        $validated['is_active'] = $request->has('is_active');
 
         $medication->update($validated);
 
