@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Record;
+use App\Models\Medication;
+use App\Models\MedicationLog;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
@@ -40,7 +42,8 @@ class RecordController extends Controller
      */
     public function create()
     {
-        return view('records.create');
+        $medications = auth()->user()->medications()->where('is_active', true)->get();
+        return view('records.create', compact('medications'));
     }
 
     /**
@@ -54,12 +57,28 @@ class RecordController extends Controller
             'sleep_hours' => 'nullable|numeric|min:0|max:24',
             'note' => 'nullable|string',
             'took_medication' => 'boolean',
+            'medication_logs' => 'nullable|array',
+            'medication_logs.*.medication_id' => 'nullable|exists:medications,id',
+            'medication_logs.*.medication_name' => 'nullable|string|max:255',
+            'medication_logs.*.timing' => 'required|string',
+            'medication_logs.*.taken' => 'boolean',
         ]);
 
-        Record::create([
+        $record = Record::create([
             'user_id' => auth()->id(),
-            ...$validated,
+            'date' => $validated['date'],
+            'mood_score' => $validated['mood_score'] ?? null,
+            'sleep_hours' => $validated['sleep_hours'] ?? null,
+            'note' => $validated['note'] ?? null,
+            'took_medication' => $validated['took_medication'] ?? false,
         ]);
+
+        // 服薬ログを保存
+        if (!empty($validated['medication_logs'])) {
+            foreach ($validated['medication_logs'] as $log) {
+                $record->medicationLogs()->create($log);
+            }
+        }
 
         return redirect()->route('records.index')
             ->with('success', '記録を保存しました');
@@ -71,6 +90,7 @@ class RecordController extends Controller
     public function show(Record $record)
     {
         $this->authorize('view', $record);
+        $record->load('medicationLogs.medication');
         return view('records.show', compact('record'));
     }
 
@@ -80,7 +100,9 @@ class RecordController extends Controller
     public function edit(Record $record)
     {
         $this->authorize('update', $record);
-        return view('records.edit', compact('record'));
+        $medications = auth()->user()->medications()->where('is_active', true)->get();
+        $record->load('medicationLogs.medication');
+        return view('records.edit', compact('record', 'medications'));
     }
 
     /**
@@ -96,9 +118,28 @@ class RecordController extends Controller
             'sleep_hours' => 'nullable|numeric|min:0|max:24',
             'note' => 'nullable|string',
             'took_medication' => 'boolean',
+            'medication_logs' => 'nullable|array',
+            'medication_logs.*.medication_id' => 'nullable|exists:medications,id',
+            'medication_logs.*.medication_name' => 'nullable|string|max:255',
+            'medication_logs.*.timing' => 'required|string',
+            'medication_logs.*.taken' => 'boolean',
         ]);
 
-        $record->update($validated);
+        $record->update([
+            'date' => $validated['date'],
+            'mood_score' => $validated['mood_score'] ?? null,
+            'sleep_hours' => $validated['sleep_hours'] ?? null,
+            'note' => $validated['note'] ?? null,
+            'took_medication' => $validated['took_medication'] ?? false,
+        ]);
+
+        // 既存の服薬ログを削除して新しく作成
+        $record->medicationLogs()->delete();
+        if (!empty($validated['medication_logs'])) {
+            foreach ($validated['medication_logs'] as $log) {
+                $record->medicationLogs()->create($log);
+            }
+        }
 
         return redirect()->route('records.index')
             ->with('success', '記録を更新しました');

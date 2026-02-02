@@ -9,7 +9,7 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
-                    <form action="{{ route('records.store') }}" method="POST">
+                    <form action="{{ route('records.store') }}" method="POST" x-data="medicationForm()">
                         @csrf
 
                         <div class="mb-4">
@@ -51,16 +51,92 @@
                             @enderror
                         </div>
 
-                        <div class="mb-4">
-                            <label class="flex items-center">
-                                <input type="checkbox" name="took_medication" value="1" 
-                                       {{ old('took_medication') ? 'checked' : '' }}
-                                       class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                                <span class="ml-2 text-sm text-gray-700">服薬しました</span>
-                            </label>
-                            @error('took_medication')
-                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                            @enderror
+                        <!-- 服薬記録セクション -->
+                        <div class="mb-6 border-t pt-4">
+                            <div class="flex justify-between items-center mb-4">
+                                <label class="block text-sm font-medium text-gray-700">
+                                    服薬記録
+                                </label>
+                                <button type="button" @click="addMedication()" 
+                                        class="bg-green-500 hover:bg-green-700 text-white text-sm font-bold py-1 px-3 rounded inline-flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                    </svg>
+                                    服薬を追加
+                                </button>
+                            </div>
+
+                            <div x-show="medications.length === 0" class="text-gray-500 text-sm text-center py-4">
+                                服薬記録がありません
+                            </div>
+
+                            <div class="space-y-3">
+                                <template x-for="(med, index) in medications" :key="index">
+                                    <div class="border rounded-lg p-4 bg-gray-50">
+                                        <div class="flex justify-between items-start mb-2">
+                                            <div class="flex-1">
+                                                <select x-model="med.type" @change="updateMedication(index)" class="text-sm rounded border-gray-300 mb-2">
+                                                    <option value="registered">登録済みの薬</option>
+                                                    <option value="other">その他の薬</option>
+                                                </select>
+
+                                                <div x-show="med.type === 'registered'">
+                                                    <select x-model="med.medication_id" @change="loadMedicationTimings(index)" class="block w-full rounded border-gray-300 text-sm">
+                                                        <option value="">薬を選択</option>
+                                                        @foreach($medications as $medication)
+                                                            <option value="{{ $medication->id }}" data-timings='@json($medication->timing)'>
+                                                                {{ $medication->name }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+
+                                                <div x-show="med.type === 'other'">
+                                                    <input type="text" x-model="med.medication_name" placeholder="薬の名前" class="block w-full rounded border-gray-300 text-sm mb-2">
+                                                    <select x-model="med.timing" class="block w-full rounded border-gray-300 text-sm">
+                                                        <option value="morning">朝</option>
+                                                        <option value="afternoon">昼</option>
+                                                        <option value="evening">夕</option>
+                                                        <option value="night">夜</option>
+                                                        <option value="bedtime">就寝前</option>
+                                                        <option value="as_needed">頓服</option>
+                                                    </select>
+                                                </div>
+
+                                                <div x-show="med.timings && med.timings.length > 0" class="mt-3 space-y-1">
+                                                    <template x-for="timing in med.timings" :key="timing">
+                                                        <label class="flex items-center">
+                                                            <input type="checkbox" :checked="med.taken_timings.includes(timing)" 
+                                                                   @change="toggleTiming(index, timing)" class="rounded text-blue-600">
+                                                            <span class="ml-2 text-sm" x-text="getTimingLabel(timing)"></span>
+                                                        </label>
+                                                    </template>
+                                                </div>
+
+                                                <div x-show="med.type === 'other' || (med.timings && med.timings.length === 0)" class="mt-3">
+                                                    <label class="flex items-center">
+                                                        <input type="checkbox" x-model="med.taken" class="rounded text-blue-600">
+                                                        <span class="ml-2 text-sm">服用した</span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <button type="button" @click="removeMedication(index)" class="text-red-600 hover:text-red-800 text-sm ml-2">
+                                                削除
+                                            </button>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+
+                            <!-- Hidden inputs for form submission -->
+                            <template x-for="(med, index) in getMedicationLogs()" :key="index">
+                                <div>
+                                    <input type="hidden" :name="`medication_logs[${index}][medication_id]`" :value="med.medication_id">
+                                    <input type="hidden" :name="`medication_logs[${index}][medication_name]`" :value="med.medication_name">
+                                    <input type="hidden" :name="`medication_logs[${index}][timing]`" :value="med.timing">
+                                    <input type="hidden" :name="`medication_logs[${index}][taken]`" :value="med.taken ? 1 : 0">
+                                </div>
+                            </template>
                         </div>
 
                         <div class="mb-6">
@@ -68,8 +144,8 @@
                                 メモ
                             </label>
                             <textarea name="note" id="note" rows="6"
-                                    placeholder="今日の出来事、気持ち、服薬の記録など、自由に書いてみましょう"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">{{ old('note', $record->note ?? '') }}</textarea>
+                                    placeholder="今日の出来事、気持ちなど、自由に書いてみましょう"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">{{ old('note') }}</textarea>
                             @error('note')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                             @enderror
@@ -90,4 +166,92 @@
             </div>
         </div>
     </div>
+
+    <script>
+        function medicationForm() {
+            return {
+                medications: [],
+                
+                addMedication() {
+                    this.medications.push({
+                        type: 'registered',
+                        medication_id: '',
+                        medication_name: '',
+                        timing: 'morning',
+                        timings: [],
+                        taken_timings: [],
+                        taken: false
+                    });
+                },
+                
+                removeMedication(index) {
+                    this.medications.splice(index, 1);
+                },
+                
+                updateMedication(index) {
+                    this.medications[index].medication_id = '';
+                    this.medications[index].medication_name = '';
+                    this.medications[index].timings = [];
+                    this.medications[index].taken_timings = [];
+                },
+                
+                loadMedicationTimings(index) {
+                    const select = event.target;
+                    const option = select.options[select.selectedIndex];
+                    const timings = option.dataset.timings ? JSON.parse(option.dataset.timings) : [];
+                    this.medications[index].timings = timings;
+                    this.medications[index].taken_timings = [];
+                },
+                
+                toggleTiming(medIndex, timing) {
+                    const index = this.medications[medIndex].taken_timings.indexOf(timing);
+                    if (index > -1) {
+                        this.medications[medIndex].taken_timings.splice(index, 1);
+                    } else {
+                        this.medications[medIndex].taken_timings.push(timing);
+                    }
+                },
+                
+                getTimingLabel(timing) {
+                    const labels = {
+                        'morning': '朝',
+                        'afternoon': '昼',
+                        'evening': '夕',
+                        'night': '夜',
+                        'bedtime': '就寝前',
+                        'as_needed': '頓服'
+                    };
+                    return labels[timing] || timing;
+                },
+                
+                getMedicationLogs() {
+                    const logs = [];
+                    this.medications.forEach(med => {
+                        if (med.type === 'registered' && med.medication_id) {
+                            // 登録済みの薬：タイミングごとにログを作成
+                            if (med.taken_timings.length > 0) {
+                                med.taken_timings.forEach(timing => {
+                                    logs.push({
+                                        medication_id: med.medication_id,
+                                        medication_name: null,
+                                        timing: timing,
+                                        taken: true
+                                    });
+                                });
+                            }
+                        } else if (med.type === 'other' && med.medication_name) {
+                            // その他の薬
+                            logs.push({
+                                medication_id: null,
+                                medication_name: med.medication_name,
+                                timing: med.timing,
+                                taken: med.taken
+                            });
+                        }
+                    });
+                    return logs;
+                }
+            }
+        }
+    </script>
 </x-app-layout>

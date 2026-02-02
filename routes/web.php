@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RecordController;
+use App\Http\Controllers\MedicationController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ThoughtRecordController;
 
@@ -55,6 +56,7 @@ Route::middleware('auth')->group(function () {
     
     Route::resource('records', RecordController::class);
     Route::resource('thoughts', ThoughtRecordController::class);
+    Route::resource('medications', MedicationController::class);
 });
 
 require __DIR__.'/auth.php';

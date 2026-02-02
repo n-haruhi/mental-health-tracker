@@ -82,7 +82,7 @@
                             @endforeach
                         </div>
                     @else
-                        <p class="text-gray-500 text-center py-8">まだ記録がありません。新規記録から始めましょう。</p>
+                        <p class="text-gray-500 text-center py-8">まだ記録がありません。<br>新規記録から始めましょう。</p>
                     @endif
                 </div>
             </div>
