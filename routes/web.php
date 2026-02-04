@@ -22,11 +22,17 @@ Route::get('/dashboard', function () {
     $weekStart = now()->startOfWeek();
     $weekRecords = \App\Models\Record::where('user_id', $user->id)
         ->where('date', '>=', $weekStart)
+        ->with('medicationLogs')
         ->get();
     
     $avgMood = $weekRecords->avg('mood_score');
     $avgSleep = $weekRecords->avg('sleep_hours');
-    $medicationRate = $weekRecords->where('took_medication', true)->count() / max($weekRecords->count(), 1) * 100;
+    
+    // 服薬率：服薬ログがある記録の割合
+    $recordsWithMedication = $weekRecords->filter(function ($record) {
+        return $record->medicationLogs->count() > 0;
+    })->count();
+    $medicationRate = ($recordsWithMedication / max($weekRecords->count(), 1)) * 100;
     
     // 過去7日間のグラフデータ
     $chartData = \App\Models\Record::where('user_id', $user->id)
@@ -40,8 +46,9 @@ Route::get('/dashboard', function () {
             ];
         });
     
-    // 最新3件
+    // 最新3件（服薬ログも読み込む）
     $recentRecords = \App\Models\Record::where('user_id', $user->id)
+        ->with('medicationLogs')
         ->orderBy('date', 'desc')
         ->take(3)
         ->get();

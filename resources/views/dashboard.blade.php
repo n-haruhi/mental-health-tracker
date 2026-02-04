@@ -93,7 +93,7 @@
                                     <div class="mt-1 text-sm">
                                         気分: {{ $record->mood_score ?? '-' }} | 
                                         睡眠: {{ $record->sleep_hours ?? '-' }}h | 
-                                        服薬: {{ $record->took_medication ? 'あり' : 'なし' }}
+                                        服薬: {{ $record->medicationLogs->count() > 0 ? 'あり' : 'なし' }}
                                     </div>
                                 </div>
                             </div>
